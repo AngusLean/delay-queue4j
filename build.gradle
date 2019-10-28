@@ -1,0 +1,42 @@
+
+buildscript {
+    ext {
+        springBootVersion = "1.5.10.RELEASE"
+    }
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+    }
+}
+
+allprojects {
+    apply plugin: 'java'
+
+    group 'com.ctspcl'
+    version '1.0.0-SNAPSHOT'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        maven { url ctspclRepository }
+        maven { url ctspclSnapshotRepository }
+    }
+
+
+    ext {
+        lombok = 'org.projectlombok:lombok:1.16.18'
+    }
+}
+
+
+
+
+dependencies {
+
+}
+
+
+
+
