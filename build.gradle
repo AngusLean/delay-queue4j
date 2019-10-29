@@ -13,6 +13,7 @@ repositories {
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.25'
     compileOnly 'org.projectlombok:lombok:1.18.10'
+    compileOnly 'org.redisson:redisson:3.11.5'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
