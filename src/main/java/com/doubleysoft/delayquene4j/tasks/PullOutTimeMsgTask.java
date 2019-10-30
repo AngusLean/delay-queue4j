@@ -30,7 +30,7 @@ public class PullOutTimeMsgTask implements Runnable {
         this.redisProvider = redisProvider;
         this.delayMsgConfig = delayMsgConfig;
         timedPullService = Executors.newSingleThreadScheduledExecutor();
-        timedPullService.scheduleWithFixedDelay(this, delayMsgConfig.getMinPeriod(), delayMsgConfig.getMinPeriod(), TimeUnit.SECONDS);
+        timedPullService.scheduleAtFixedRate(this, delayMsgConfig.getMinPeriod(), delayMsgConfig.getMinPeriod(), TimeUnit.SECONDS);
     }
 
     public void doPullAllTopics() {
@@ -52,21 +52,28 @@ public class PullOutTimeMsgTask implements Runnable {
     private void doPullTimeOutMsg(String queueName) {
         long crt = System.currentTimeMillis() / 1000;
         //query begin score should ensure no time-slice between last pull action and this pull action.
-        crt = crt - delayMsgConfig.getMinPeriod();
-        crt = crt > 0 ? crt : 0;
+//        crt = crt - delayMsgConfig.getMinPeriod();
+//        crt = crt > 0 ? crt : 0;
         Long range = crt + delayMsgConfig.getMinPeriod();
+        crt = 0;
         //delayed message need to be processed now, but we add it to redis queue for performance
         //in distributed system
+        String lockName = "LOCK-" + queueName;
         try {
-            lockProvider.lock(queueName, Long.MAX_VALUE);
             List<String> fromZSetByScore = redisProvider.getFromZSetByScore(queueName, crt, range);
             if (fromZSetByScore == null || fromZSetByScore.isEmpty()) {
                 return;
             }
-            log.info("[Delay Queue] find Delayed message:{}", fromZSetByScore);
-            redisProvider.removeFromZSetAndAdd2List(queueName, crt, range, Constants.WAITING_HANDLE_LIST_NAME, fromZSetByScore);
+            boolean lockResult = lockProvider.tryLock(lockName, 0l);
+            if (!lockResult) {
+                return;
+            }
+            log.info("[Delay Queue] find Delayed message:{}, {}", fromZSetByScore, System.currentTimeMillis());
+            redisProvider.removeFromZSetAndAdd2BlockQueue(queueName, crt, range, Constants.WAITING_HANDLE_LIST_NAME, fromZSetByScore);
+        } catch (Exception e) {
+            log.error("[Delay Queue] Fail in tryLock queueName:{}", queueName);
         } finally {
-            lockProvider.release(queueName);
+            lockProvider.release(lockName);
         }
     }
 

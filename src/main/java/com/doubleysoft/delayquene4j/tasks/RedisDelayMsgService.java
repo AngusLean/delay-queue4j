@@ -21,6 +21,7 @@ public class RedisDelayMsgService implements DelayMsgService {
         Long time2Live = System.currentTimeMillis() / 1000 + delayedInfoDTO.getDelayTime();
         redisProvider.add2ZSetAndSet(Constants.ALL_TOPIC_SET_NAME, topic, jsonProvider.toJSONString(delayedInfoDTO), time2Live);
         HandlerContext.addMsgHandler(delayedInfoDTO.getSystem(), new DelayedMsgHandlerWrapper(msgHandler));
+        log.info("[Delay Queue] Add delayed message:{} to redis", delayedInfoDTO);
     }
 
     @RequiredArgsConstructor

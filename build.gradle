@@ -12,9 +12,15 @@ repositories {
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.25'
+    
     compileOnly 'org.projectlombok:lombok:1.18.10'
     compileOnly 'org.redisson:redisson:3.11.5'
     compileOnly 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
+
+    testCompile 'org.redisson:redisson:3.11.5'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.slf4j:slf4j-simple:1.7.25'
+
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 

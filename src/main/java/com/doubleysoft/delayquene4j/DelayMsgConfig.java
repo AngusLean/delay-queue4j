@@ -31,7 +31,7 @@ public class DelayMsgConfig implements DelayMsgService {
      */
     @Getter
     @Setter
-    private Long minPeriod;
+    private Long minPeriod = 1l;
 
     @Setter
     private int corePoolSize = 5;
@@ -47,7 +47,7 @@ public class DelayMsgConfig implements DelayMsgService {
     private JsonProvider jsonProvider;
     private DelayMsgService delayMsgService;
     private ExecutorService executorService;
-    private int crtHandlers = 0;
+
     private RejectedExecutionHandler rejectedExecutionHandler = (r, executor) -> {
         try {
             TimeUnit.SECONDS.sleep(1);
@@ -79,7 +79,6 @@ public class DelayMsgConfig implements DelayMsgService {
     @Override
     public void addDelayMessage(DelayedInfoDTO delayedInfoDTO, DelayedMsgHandler msgHandler) {
         this.delayMsgService.addDelayMessage(delayedInfoDTO, msgHandler);
-        this.crtHandlers++;
     }
 
     private void beginTimerTasks() {

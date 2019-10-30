@@ -18,16 +18,23 @@ public class RedissonRedisLockProvider implements LockProvider {
     private final RedissonClient redissonClient;
 
     @Override
-    public boolean lock(String key, Long timeOut) {
+    public boolean tryLock(String key, Long timeOut) {
         RLock lock = redissonClient.getLock(key);
-        lock.lock(timeOut, TimeUnit.SECONDS);
-        return true;
+        try {
+            return lock.tryLock(timeOut, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.warn("[Delay Queue] fail in try lock key:{}", key);
+            return false;
+        }
     }
 
     @Override
     public void release(String key) {
         RLock lock = redissonClient.getLock(key);
-        if (lock == null || !lock.isHeldByCurrentThread()) {
+        if (lock == null || !lock.isLocked()) {
+            return;
+        }
+        if (!lock.isHeldByCurrentThread()) {
             return;
         }
         lock.forceUnlock();

@@ -45,7 +45,7 @@ public interface RedisProvider {
      * @param listName new list name
      * @param listMsg  new list data
      */
-    void removeFromZSetAndAdd2List(String zSetName, Long start, Long end, String listName, List<String> listMsg);
+    void removeFromZSetAndAdd2BlockQueue(String zSetName, Long start, Long end, String listName, List<String> listMsg);
 
     /**
      * pop data from list, this method must block caller thread
