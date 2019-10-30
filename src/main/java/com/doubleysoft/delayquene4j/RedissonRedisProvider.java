@@ -26,7 +26,7 @@ public class RedissonRedisProvider implements RedisProvider {
             RSet<Object> set = redissonClient.getSet(setName);
             set.add(zSetVal);
             RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(zSetVal);
-            boolean result = scoredSortedSet.add(ttl, msg);
+            scoredSortedSet.add(ttl, msg);
             transaction.commit();
         } catch (Exception e) {
             transaction.rollback();
