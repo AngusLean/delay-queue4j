@@ -1,5 +1,6 @@
-package com.doubleysoft.delayquene4j;
+package com.doubleysoft.delayquene4j.support.reddison;
 
+import com.doubleysoft.delayquene4j.support.RedisProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.*;
@@ -34,13 +35,13 @@ public class RedissonRedisProvider implements RedisProvider {
     }
 
     @Override
-    public Set<String> getFromSet(String sSetName) {
-        RSet<Object> set = redissonClient.getSet(sSetName);
+    public Set<String> getFromSet(String setName) {
+        RSet<Object> set = redissonClient.getSet(setName);
         return set.readAll().stream().map(row -> row.toString()).collect(Collectors.toSet());
     }
 
     @Override
-    public List<String> getFromZsetByScore(String zSetName, Long start, Long end) {
+    public List<String> getFromZSetByScore(String zSetName, Long start, Long end) {
         RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(zSetName);
         Collection<ScoredEntry<Object>> scoredEntries = scoredSortedSet.entryRange(start, true, end, true);
         return scoredEntries.stream().map(row -> row.getValue().toString()).collect(Collectors.toList());
@@ -58,5 +59,12 @@ public class RedissonRedisProvider implements RedisProvider {
         } catch (Exception e) {
             transaction.rollback();
         }
+    }
+
+    @Override
+    public String blockPopFromList(String listName) {
+        RList<Object> list = redissonClient.getList(listName);
+        //FIXME
+        return list.remove(0).toString();
     }
 }

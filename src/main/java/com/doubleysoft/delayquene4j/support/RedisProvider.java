@@ -1,4 +1,4 @@
-package com.doubleysoft.delayquene4j;
+package com.doubleysoft.delayquene4j.support;
 
 import java.util.List;
 import java.util.Set;
@@ -21,10 +21,10 @@ public interface RedisProvider {
     /**
      * get data from Set, like {@see href="add2ZSetAndSet"}
      *
-     * @param sSetName
+     * @param setName
      * @return
      */
-    Set<String> getFromSet(String sSetName);
+    Set<String> getFromSet(String setName);
 
     /**
      * get data from ScoredSorted-Set by score range
@@ -34,7 +34,7 @@ public interface RedisProvider {
      * @param end      score end, inclusive
      * @return
      */
-    List<String> getFromZsetByScore(String zSetName, Long start, Long end);
+    List<String> getFromZSetByScore(String zSetName, Long start, Long end);
 
     /**
      * remove from the ScoredSorted Set by zSetName which score between start end end, and
@@ -46,4 +46,12 @@ public interface RedisProvider {
      * @param listMsg  new list data
      */
     void removeFromZSetAndAdd2List(String zSetName, Long start, Long end, String listName, List<String> listMsg);
+
+    /**
+     * pop data from list, this method must block caller thread
+     *
+     * @param listName
+     * @return
+     */
+    String blockPopFromList(String listName);
 }

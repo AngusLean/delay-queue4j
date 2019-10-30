@@ -1,5 +1,8 @@
-package com.doubleysoft.delayquene4j;
+package com.doubleysoft.delayquene4j.tasks;
 
+import com.doubleysoft.delayquene4j.DelayMsgConfig;
+import com.doubleysoft.delayquene4j.support.LockProvider;
+import com.doubleysoft.delayquene4j.support.RedisProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -11,26 +14,30 @@ import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
-public class PullHandler implements Runnable {
-
-    private final DelayMsgConfig delayMsgConfig;
+public class PullOutTimeMsgTask implements Runnable {
     private final ExecutorService executorService;
     private final LockProvider lockProvider;
     private final RedisProvider redisProvider;
+    private final DelayMsgConfig delayMsgConfig;
+
     private ScheduledExecutorService timedPullService;
 
-    public PullHandler(DelayMsgConfig delayMsgConfig, ExecutorService executorService, LockProvider lockProvider, RedisProvider redisProvider) {
-        this.delayMsgConfig = delayMsgConfig;
+    public PullOutTimeMsgTask(LockProvider lockProvider,
+                              RedisProvider redisProvider, ExecutorService executorService, DelayMsgConfig delayMsgConfig) {
+
         this.executorService = executorService;
         this.lockProvider = lockProvider;
         this.redisProvider = redisProvider;
-
+        this.delayMsgConfig = delayMsgConfig;
         timedPullService = Executors.newSingleThreadScheduledExecutor();
         timedPullService.scheduleWithFixedDelay(this, delayMsgConfig.getMinPeriod(), delayMsgConfig.getMinPeriod(), TimeUnit.SECONDS);
     }
 
     public void doPullAllTopics() {
-        Set<String> allTopics = redisProvider.getFromSet(DelayMsgConfig.ALL_TOPIC_SET_NAME);
+        Set<String> allTopics = redisProvider.getFromSet(Constants.ALL_TOPIC_SET_NAME);
+        if (allTopics == null || allTopics.isEmpty()) {
+            return;
+        }
         allTopics.forEach(row -> {
             executorService.submit(() -> {
                 try {
@@ -52,9 +59,12 @@ public class PullHandler implements Runnable {
         //in distributed system
         try {
             lockProvider.lock(queueName, Long.MAX_VALUE);
-            List<String> fromZSetByScore = redisProvider.getFromZsetByScore(queueName, crt, range);
+            List<String> fromZSetByScore = redisProvider.getFromZSetByScore(queueName, crt, range);
+            if (fromZSetByScore == null || fromZSetByScore.isEmpty()) {
+                return;
+            }
             log.info("[Delay Queue] find Delayed message:{}", fromZSetByScore);
-            redisProvider.removeFromZSetAndAdd2List(queueName, crt, range, DelayMsgConfig.WAITING_HANDLE_LIST_NAME, fromZSetByScore);
+            redisProvider.removeFromZSetAndAdd2List(queueName, crt, range, Constants.WAITING_HANDLE_LIST_NAME, fromZSetByScore);
         } finally {
             lockProvider.release(queueName);
         }

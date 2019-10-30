@@ -14,5 +14,6 @@ public class DelayedInfoDTO {
     //uuid
     private String uuid;
 
+    //actual message which delaymessagehandle will receive
     private String message;
 }

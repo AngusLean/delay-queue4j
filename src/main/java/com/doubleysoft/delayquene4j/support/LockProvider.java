@@ -1,4 +1,4 @@
-package com.doubleysoft.delayquene4j;
+package com.doubleysoft.delayquene4j.support;
 
 /**
  * @author dongyang.yu
