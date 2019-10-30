@@ -92,7 +92,7 @@ public class DelayMsgConfig implements DelayMsgService {
 
             @Override
             public Thread newThread(Runnable r) {
-                return new Thread(r, "延时队列线程池:" + integer.getAndIncrement());
+                return new Thread(r, "Delayed ThreadPool [" + integer.getAndIncrement() + "] ");
             }
         };
         executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(100), FACTORY);

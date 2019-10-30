@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
-public class PullOutTimeMsgTask implements Runnable {
+public class PullOutTimeMsgTask implements Runnable, PullTask {
     private final ExecutorService executorService;
     private final LockProvider lockProvider;
     private final RedisProvider redisProvider;
@@ -58,7 +58,7 @@ public class PullOutTimeMsgTask implements Runnable {
         crt = 0;
         //delayed message need to be processed now, but we add it to redis queue for performance
         //in distributed system
-        String lockName = "LOCK-" + queueName;
+        String lockName = getLockKey(queueName);
         try {
             List<String> fromZSetByScore = redisProvider.getFromZSetByScore(queueName, crt, range);
             if (fromZSetByScore == null || fromZSetByScore.isEmpty()) {
@@ -69,13 +69,15 @@ public class PullOutTimeMsgTask implements Runnable {
                 return;
             }
             log.info("[Delay Queue] find Delayed message:{}, {}", fromZSetByScore, System.currentTimeMillis());
-            redisProvider.removeFromZSetAndAdd2BlockQueue(queueName, crt, range, Constants.WAITING_HANDLE_LIST_NAME, fromZSetByScore);
+            String blockingKey = getBlockingKey(queueName);
+            redisProvider.removeFromZSetAndAdd2BlockQueue(queueName, crt, range, blockingKey, fromZSetByScore);
         } catch (Exception e) {
             log.error("[Delay Queue] Fail in tryLock queueName:{}", queueName);
         } finally {
             lockProvider.release(lockName);
         }
     }
+
 
     @Override
     public void run() {

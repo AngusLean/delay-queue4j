@@ -47,10 +47,10 @@ public class DelayMsgConfigTest1 {
         System.out.println("开始发送消息:" + crt);
         Map<String, Long> target = new HashMap<>();
         Map<String, Long> actualResult = new HashMap<>();
-        int testLen = 100;
+        int testLen = 20;
         CountDownLatch latch = new CountDownLatch(testLen);
         for (int i = 0; i < testLen; i++) {
-            String system = "TEST-SYSTEM" + i;
+            String system = "TEST-SYSTEM-" + i;
             DelayedInfoDTO data = DelayedInfoDTO.builder().delayTime(Math.abs(new Random().nextLong()) % 20)
                     .system(system)
                     .message(system + String.format("%2d", new Random().nextInt(100)))
