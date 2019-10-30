@@ -21,7 +21,9 @@ class HandlerContext {
 
     public static void addMsgHandler(String system, DelayedMsgHandler handler) {
         handlerMap.putIfAbsent(system, handler);
-        handlerKeyChangeCallBack.callBack(system);
+        if (handlerKeyChangeCallBack != null) {
+            handlerKeyChangeCallBack.callBack(system);
+        }
     }
 
     public static DelayedMsgHandler getMsgHandler(String system) {
