@@ -1,6 +1,7 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
-group 'com.ctspcl'
+group 'com.doubleysoft'
 version '1.0.0-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -25,5 +26,14 @@ dependencies {
 }
 
 
-
-
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+            repository(url: version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository) {
+                authentication(userName: properties.getProperty("userName"), password: properties.getProperty("passWord"))
+            }
+        }
+    }
+}

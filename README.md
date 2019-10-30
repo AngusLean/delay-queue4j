@@ -1,8 +1,12 @@
 # delay-queue4j
-distributed redis-based delay queue written in java. 
+distributed redis-based delay queue written in java. this library is design for
+distributed system delay-queue, which does't require **strict exactly delay time**,
+but maybe have large data count 。
 
 # Usage
 
+currently this project does't upload to maven repository,so you
+need to download project and directly use it by source code。
 
 Test Demo:
 
