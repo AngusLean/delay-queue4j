@@ -30,10 +30,6 @@ class HandlerContext {
         return handlerMap.getOrDefault(system, NO_OP_HANDLER);
     }
 
-    public static Set<String> getHandlerKeys() {
-        return handlerMap.keySet();
-    }
-
     public static void setHandlerKeyChangeCallBack(HandlerKeyChangeCallBack callBack) {
         handlerKeyChangeCallBack = callBack;
     }

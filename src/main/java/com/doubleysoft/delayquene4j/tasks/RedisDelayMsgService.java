@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class RedisDelayMsgService implements DelayMsgService, PullTask {
+public class RedisDelayMsgService implements DelayMsgService, PullMixin {
     private final RedisProvider redisProvider;
     private final JsonProvider jsonProvider;
 

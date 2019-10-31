@@ -4,9 +4,9 @@ package com.doubleysoft.delayquene4j.tasks;
  * @author dongyang.yu
  * @email dongyang.yu@anxincloud.com
  */
-public interface PullTask {
+public interface PullMixin {
     default String getLockKey(String queueName) {
-        return "LOCK-" + queueName;
+        return Constants.LOCK + queueName;
     }
 
     default String getWaitHandleSetName(String keyName) {

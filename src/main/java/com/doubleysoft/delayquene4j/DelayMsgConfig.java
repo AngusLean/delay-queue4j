@@ -52,7 +52,7 @@ public class DelayMsgConfig implements DelayMsgService {
         try {
             TimeUnit.SECONDS.sleep(1);
             try {
-                executorService.submit(r);
+                executor.submit(r);
             } catch (RejectedExecutionException e) {
                 log.error("[Delay Queue] Fail in add task to thread pool because poll is full");
             }

@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
-public class PullOutTimeMsgTask implements Runnable, PullTask {
+public class PullOutTimeMsgTask implements Runnable, PullMixin {
     private final ExecutorService executorService;
     private final LockProvider lockProvider;
     private final RedisProvider redisProvider;
@@ -52,8 +52,6 @@ public class PullOutTimeMsgTask implements Runnable, PullTask {
     private void doPullTimeOutMsg(String queueName) {
         long crt = System.currentTimeMillis() / 1000;
         //query begin score should ensure no time-slice between last pull action and this pull action.
-//        crt = crt - delayMsgConfig.getMinPeriod();
-//        crt = crt > 0 ? crt : 0;
         Long range = crt + delayMsgConfig.getMinPeriod();
         crt = 0;
         //delayed message need to be processed now, but we add it to redis queue for performance

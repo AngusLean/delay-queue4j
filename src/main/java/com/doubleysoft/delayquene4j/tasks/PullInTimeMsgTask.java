@@ -13,21 +13,21 @@ import java.util.concurrent.Executors;
  * @email dongyang.yu@anxincloud.com
  */
 @Slf4j
-public class PullInTimeMsgTask implements Runnable, PullTask {
+public class PullInTimeMsgTask implements Runnable, PullMixin {
     private final RedisProvider redisProvider;
-    private final ExecutorService executorService;
-    private final ExecutorService pullBlockService;
+    private final ExecutorService busiExecutorService;
+    private final ExecutorService bgExecutorService;
     private final JsonProvider jsonProvider;
 
-    public PullInTimeMsgTask(RedisProvider redisProvider, JsonProvider jsonProvider, ExecutorService executorService) {
-        this(redisProvider, jsonProvider, executorService, Executors.newCachedThreadPool());
+    public PullInTimeMsgTask(RedisProvider redisProvider, JsonProvider jsonProvider, ExecutorService busiExecutorService) {
+        this(redisProvider, jsonProvider, busiExecutorService, Executors.newCachedThreadPool());
     }
 
-    public PullInTimeMsgTask(RedisProvider redisProvider, JsonProvider jsonProvider, ExecutorService executorService, ExecutorService pullOutTimeService) {
+    public PullInTimeMsgTask(RedisProvider redisProvider, JsonProvider jsonProvider, ExecutorService busiExecutorService, ExecutorService pullOutTimeService) {
         this.redisProvider = redisProvider;
-        this.executorService = executorService;
+        this.busiExecutorService = busiExecutorService;
         this.jsonProvider = jsonProvider;
-        this.pullBlockService = pullOutTimeService;
+        this.bgExecutorService = pullOutTimeService;
         new Thread(this).start();
     }
     @Override
@@ -36,7 +36,7 @@ public class PullInTimeMsgTask implements Runnable, PullTask {
             try {
                 HandlerContext.setHandlerKeyChangeCallBack(systemKey -> {
                     //each pull handler just pull interest keys
-                    pullBlockService.execute(() -> {
+                    bgExecutorService.execute(() -> {
                         doFetchMsg(getWaitHandleSetName(systemKey));
                     });
                 });
@@ -62,7 +62,7 @@ public class PullInTimeMsgTask implements Runnable, PullTask {
             log.warn("[Delay Queue]Fail in parse string:{} to DelayedInfoDTO class", msg);
             return;
         }
-        executorService.execute(() -> {
+        busiExecutorService.execute(() -> {
             HandlerContext.getMsgHandler(getScoredSetName(delayedInfoDTO.getSystem()))
                     .handle(delayedInfoDTO.getUuid(), delayedInfoDTO.getMessage());
         });

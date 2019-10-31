@@ -21,4 +21,6 @@ public class Constants {
      */
     public static final String WAITING_HANDLE_LIST_NAME = "DELAY_QUEUE_WAIT_HANDLE_LIST-";
 
+    public static final String LOCK = "LOCK-";
+
 }
