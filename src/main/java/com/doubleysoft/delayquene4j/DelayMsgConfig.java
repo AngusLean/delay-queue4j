@@ -81,6 +81,16 @@ public class DelayMsgConfig implements DelayMsgService {
         this.delayMsgService.addDelayMessage(delayedInfoDTO, msgHandler);
     }
 
+    @Override
+    public void addDelayMessage(DelayedInfoDTO delayedInfoDTO) {
+        this.delayMsgService.addDelayMessage(delayedInfoDTO);
+    }
+
+    @Override
+    public void addDelayCallBack(String system, DelayedMsgHandler msgHandler) {
+        this.delayMsgService.addDelayCallBack(system, msgHandler);
+    }
+
     private void beginTimerTasks() {
         new PullOutTimeMsgTask(lockProvider, redisProvider, executorService, this);
         new PullInTimeMsgTask(redisProvider, jsonProvider, executorService);

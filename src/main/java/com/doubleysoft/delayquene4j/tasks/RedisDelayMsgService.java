@@ -24,6 +24,20 @@ public class RedisDelayMsgService implements DelayMsgService, PullMixin {
         log.info("[Delay Queue] Add delayed message:{} to redis", delayedInfoDTO);
     }
 
+    @Override
+    public void addDelayMessage(DelayedInfoDTO delayedInfoDTO) {
+        String topic = getScoredSetName(delayedInfoDTO.getSystem());
+        Long time2Live = System.currentTimeMillis() / 1000 + delayedInfoDTO.getDelayTime();
+        redisProvider.add2ZSetAndSet(Constants.ALL_TOPIC_SET_NAME, topic, jsonProvider.toJSONString(delayedInfoDTO), time2Live);
+        log.info("[Delay Queue] Add delayed message:{} to redis", delayedInfoDTO);
+    }
+
+    @Override
+    public void addDelayCallBack(String system, DelayedMsgHandler msgHandler) {
+        String topic = getScoredSetName(system);
+        HandlerContext.addMsgHandler(topic, new DelayedMsgHandlerWrapper(msgHandler));
+    }
+
     @RequiredArgsConstructor
     @Slf4j
     static class DelayedMsgHandlerWrapper implements DelayedMsgHandler {

@@ -10,4 +10,8 @@ public interface DelayMsgService {
      * @param delayedInfoDTO
      */
     void addDelayMessage(DelayedInfoDTO delayedInfoDTO, DelayedMsgHandler msgHandler);
+
+    void addDelayMessage(DelayedInfoDTO delayedInfoDTO);
+
+    void addDelayCallBack(String system, DelayedMsgHandler msgHandler);
 }

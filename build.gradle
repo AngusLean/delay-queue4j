@@ -8,7 +8,13 @@ targetCompatibility = 1.8
 
 
 repositories {
+    maven { url snapshotRepository }
+    maven { url repository }
     mavenCentral()
+}
+
+configurations {
+    deployerJars
 }
 
 dependencies {
@@ -22,16 +28,17 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.slf4j:slf4j-simple:1.7.25'
 
+    deployerJars "org.apache.maven.wagon:wagon-http:2.2"
+
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
-
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 uploadArchives {
     repositories {
         mavenDeployer {
-            Properties properties = new Properties()
-            properties.load(project.rootProject.file('local.properties').newDataInputStream())
-            repository(url: version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository) {
+            repository(url: "http://192.168.20.103:8081/nexus/content/repositories/snapshots/") {
                 authentication(userName: properties.getProperty("userName"), password: properties.getProperty("passWord"))
             }
         }
