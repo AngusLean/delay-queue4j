@@ -69,7 +69,7 @@ public class PullOutTimeMsgTask implements Runnable, PullTask {
                 return;
             }
             log.info("[Delay Queue] find Delayed message:{}, {}", fromZSetByScore, System.currentTimeMillis());
-            String blockingKey = getBlockingKey(queueName);
+            String blockingKey = getWaitHandleSetName(queueName);
             redisProvider.removeFromZSetAndAdd2BlockQueue(queueName, crt, range, blockingKey, fromZSetByScore);
         } catch (Exception e) {
             log.error("[Delay Queue] Fail in tryLock queueName:{}", queueName);

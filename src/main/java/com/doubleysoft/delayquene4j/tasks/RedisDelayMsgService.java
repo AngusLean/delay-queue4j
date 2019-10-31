@@ -11,16 +11,16 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class RedisDelayMsgService implements DelayMsgService {
+public class RedisDelayMsgService implements DelayMsgService, PullTask {
     private final RedisProvider redisProvider;
     private final JsonProvider jsonProvider;
 
     @Override
     public void addDelayMessage(DelayedInfoDTO delayedInfoDTO, DelayedMsgHandler msgHandler) {
-        String topic = Constants.ZSET_TOPIC_NAME + delayedInfoDTO.getSystem();
+        String topic = getScoredSetName(delayedInfoDTO.getSystem());
         Long time2Live = System.currentTimeMillis() / 1000 + delayedInfoDTO.getDelayTime();
-        redisProvider.add2ZSetAndSet(Constants.ALL_TOPIC_SET_NAME, delayedInfoDTO.getSystem(), jsonProvider.toJSONString(delayedInfoDTO), time2Live);
-        HandlerContext.addMsgHandler(delayedInfoDTO.getSystem(), new DelayedMsgHandlerWrapper(msgHandler));
+        redisProvider.add2ZSetAndSet(Constants.ALL_TOPIC_SET_NAME, topic, jsonProvider.toJSONString(delayedInfoDTO), time2Live);
+        HandlerContext.addMsgHandler(topic, new DelayedMsgHandlerWrapper(msgHandler));
         log.info("[Delay Queue] Add delayed message:{} to redis", delayedInfoDTO);
     }
 

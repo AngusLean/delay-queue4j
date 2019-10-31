@@ -37,7 +37,7 @@ public class PullInTimeMsgTask implements Runnable, PullTask {
                 HandlerContext.setHandlerKeyChangeCallBack(systemKey -> {
                     //each pull handler just pull interest keys
                     pullBlockService.execute(() -> {
-                        doFetchMsg(getBlockingKey(systemKey));
+                        doFetchMsg(getWaitHandleSetName(systemKey));
                     });
                 });
             } catch (Exception e) {
@@ -62,8 +62,9 @@ public class PullInTimeMsgTask implements Runnable, PullTask {
             log.warn("[Delay Queue]Fail in parse string:{} to DelayedInfoDTO class", msg);
             return;
         }
-        executorService.submit(() -> {
-            HandlerContext.getMsgHandler(delayedInfoDTO.getSystem()).handle(delayedInfoDTO.getUuid(), delayedInfoDTO.getMessage());
+        executorService.execute(() -> {
+            HandlerContext.getMsgHandler(getScoredSetName(delayedInfoDTO.getSystem()))
+                    .handle(delayedInfoDTO.getUuid(), delayedInfoDTO.getMessage());
         });
     }
 }

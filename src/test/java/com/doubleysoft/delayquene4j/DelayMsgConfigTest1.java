@@ -47,7 +47,7 @@ public class DelayMsgConfigTest1 {
         System.out.println("开始发送消息:" + crt);
         Map<String, Long> target = new HashMap<>();
         Map<String, Long> actualResult = new HashMap<>();
-        int testLen = 20;
+        int testLen = 50;
         CountDownLatch latch = new CountDownLatch(testLen);
         for (int i = 0; i < testLen; i++) {
             String system = "TEST-SYSTEM-" + i;
