@@ -1,6 +1,7 @@
 package com.doubleysoft.delayquene4j;
 
 import com.doubleysoft.delayquene4j.model.DelayedInfoDTO;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class DelayMsgConfigTest1 {
     private static final int MAX_MARGIN = 3;
 
     private DelayMsgConfig delayMsgConfig;
-
+    private RedissonClient redisson;
     @Before
     public void setUp() {
         String host = "redis://redis.dev1.ctstest.com:6379";
@@ -33,7 +34,7 @@ public class DelayMsgConfigTest1 {
                 .setPassword(psd)
                 .setDatabase(1);
         // Sync and Async API
-        RedissonClient redisson = Redisson.create(config);
+        redisson = Redisson.create(config);
         delayMsgConfig = new DelayMsgConfig(redisson);
     }
 
@@ -67,6 +68,33 @@ public class DelayMsgConfigTest1 {
         System.out.println("延迟过大的消息：" + errorCount);
         Assert.assertEquals(0, errorCount.size());
         System.out.println("\n\n=========>>>>>>>>>>>>>\n");
+    }
+
+    @Test
+    public void addData1() throws InterruptedException {
+        delayMsgConfig.setCorePoolSize(10);
+        delayMsgConfig.setMaximumPoolSize(20);
+        delayMsgConfig.begin();
+        TimeUnit.SECONDS.sleep(2);
+        String system = "DELAY-ATEST1";
+        CountDownLatch latch = new CountDownLatch(1);
+        delayMsgConfig.addDelayCallBack(system, (uuid, message) -> {
+            System.out.println("收到消息" + uuid + ", " + message);
+            latch.countDown();
+        });
+        delayMsgConfig.addDelayMessage(DelayedInfoDTO.builder()
+                .delayTime(Math.abs(new Random().nextLong()) % 20)
+                .system(system)
+                .message(system + String.format("%2d", new Random().nextInt(100)))
+                .uuid(UUID.randomUUID().toString())
+                .build());
+        latch.await(100, TimeUnit.SECONDS);
+        System.out.println("======>");
+    }
+
+    @After
+    public void finalize() {
+        redisson.shutdown();
     }
 
 }
