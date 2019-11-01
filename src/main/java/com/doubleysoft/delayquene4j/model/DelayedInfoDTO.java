@@ -22,4 +22,6 @@ public class DelayedInfoDTO {
 
     //actual message which delaymessagehandle will receive
     private String message;
+
+    private Long timestamp;
 }
