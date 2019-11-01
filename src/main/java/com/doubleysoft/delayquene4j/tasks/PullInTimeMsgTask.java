@@ -32,18 +32,22 @@ public class PullInTimeMsgTask implements Runnable, PullMixin {
     }
     @Override
     public void run() {
-        while (true) {
             try {
                 HandlerContext.setHandlerKeyChangeCallBack(systemKey -> {
                     //each pull handler just pull interest keys
                     bgExecutorService.execute(() -> {
-                        doFetchMsg(getWaitHandleSetName(systemKey));
+                        while (true) {
+                            try {
+                                doFetchMsg(getWaitHandleSetName(systemKey));
+                            } catch (Exception e) {
+                                log.warn("[Delay Queue]Fail in parse string:{} to DelayedInfoDTO class");
+                            }
+                        }
                     });
                 });
             } catch (Exception e) {
                 log.warn("[Delay Queue]Fail in fetch delayed message to handle", e);
             }
-        }
     }
 
     /**
