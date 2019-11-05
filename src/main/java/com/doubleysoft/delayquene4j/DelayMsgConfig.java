@@ -92,8 +92,12 @@ public class DelayMsgConfig implements DelayMsgService {
     }
 
     private void beginTimerTasks() {
-        new PullOutTimeMsgTask(lockProvider, redisProvider, executorService, this);
-        new PullInTimeMsgTask(redisProvider, jsonProvider, executorService);
+        PullOutTimeMsgTask pullOutTimeMsgTask = new PullOutTimeMsgTask(lockProvider, redisProvider, executorService, this);
+        PullInTimeMsgTask pullInTimeMsgTask = new PullInTimeMsgTask(redisProvider, jsonProvider, executorService);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            pullInTimeMsgTask.stop();
+            pullOutTimeMsgTask.stop();
+        }));
     }
 
     private void initThreadPool() {

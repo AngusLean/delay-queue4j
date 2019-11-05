@@ -23,4 +23,6 @@ public class Constants {
 
     public static final String LOCK = "LOCK-";
 
+
+    public static final int MAX_ERROR_COUNT = 10;
 }

@@ -7,17 +7,20 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author dongyang.yu
  * @email dongyang.yu@anxincloud.com
  */
 @Slf4j
-public class PullInTimeMsgTask implements Runnable, PullMixin {
+public class PullInTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack {
+    private volatile boolean isStop = false;
     private final RedisProvider redisProvider;
     private final ExecutorService busiExecutorService;
     private final ExecutorService bgExecutorService;
     private final JsonProvider jsonProvider;
+    private int errorCount = 0;
 
     public PullInTimeMsgTask(RedisProvider redisProvider, JsonProvider jsonProvider, ExecutorService busiExecutorService) {
         this(redisProvider, jsonProvider, busiExecutorService, Executors.newCachedThreadPool());
@@ -30,24 +33,39 @@ public class PullInTimeMsgTask implements Runnable, PullMixin {
         this.bgExecutorService = pullOutTimeService;
         new Thread(this).start();
     }
+
     @Override
     public void run() {
-            try {
-                HandlerContext.setHandlerKeyChangeCallBack(systemKey -> {
-                    //each pull handler just pull interest keys
-                    bgExecutorService.execute(() -> {
-                        while (true) {
-                            try {
-                                doFetchMsg(getWaitHandleSetName(systemKey));
-                            } catch (Exception e) {
-                                log.warn("[Delay Queue]Fail in parse string:{} to DelayedInfoDTO class");
-                            }
-                        }
-                    });
+        try {
+            HandlerContext.setHandlerKeyChangeCallBack(systemKey -> {
+                //each pull handler just pull interest keys
+                bgExecutorService.execute(() -> {
+                    doSystemCallBack(systemKey);
                 });
+            });
+        } catch (Exception e) {
+            log.warn("[Delay Queue]Fail in fetch delayed message to handle", e);
+        }
+    }
+
+    private void doSystemCallBack(String systemKey) {
+        while (!isStop && errorCount < Constants.MAX_ERROR_COUNT) {
+            try {
+                doFetchMsg(getWaitHandleSetName(systemKey));
+                errorCount--;
             } catch (Exception e) {
-                log.warn("[Delay Queue]Fail in fetch delayed message to handle", e);
+                log.warn("[Delay Queue]Fail in parse string:{} to DelayedInfoDTO class");
+                errorCount++;
+                try {
+                    TimeUnit.SECONDS.sleep(1 * (errorCount / 2));
+                } catch (InterruptedException ignore) {
+                }
             }
+        }
+        log.info("[Delay Queue] Pull InTime message thread shutdown");
+        if (!bgExecutorService.isShutdown()) {
+            bgExecutorService.shutdown();
+        }
     }
 
     /**
@@ -55,7 +73,8 @@ public class PullInTimeMsgTask implements Runnable, PullMixin {
      */
     private void doFetchMsg(String blockingKeyName) {
         //block fetch
-        String msg = redisProvider.blockPopFromList(blockingKeyName);
+        String msg;
+        msg = redisProvider.blockPopFromList(blockingKeyName);
         if (msg == null || msg.length() == 0) {
             return;
         }
@@ -70,5 +89,10 @@ public class PullInTimeMsgTask implements Runnable, PullMixin {
             HandlerContext.getMsgHandler(getScoredSetName(delayedInfoDTO.getSystem()))
                     .handle(delayedInfoDTO.getUuid(), delayedInfoDTO.getMessage());
         });
+    }
+
+    @Override
+    public void stop() {
+        isStop = true;
     }
 }
