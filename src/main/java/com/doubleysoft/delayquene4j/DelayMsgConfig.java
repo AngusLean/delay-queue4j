@@ -4,16 +4,12 @@ import com.doubleysoft.delayquene4j.model.DelayedInfoDTO;
 import com.doubleysoft.delayquene4j.support.JsonProvider;
 import com.doubleysoft.delayquene4j.support.LockProvider;
 import com.doubleysoft.delayquene4j.support.RedisProvider;
-import com.doubleysoft.delayquene4j.support.jackson.JacksonProvider;
-import com.doubleysoft.delayquene4j.support.reddison.RedissonRedisLockProvider;
-import com.doubleysoft.delayquene4j.support.reddison.RedissonRedisProvider;
 import com.doubleysoft.delayquene4j.tasks.PullInTimeMsgTask;
 import com.doubleysoft.delayquene4j.tasks.PullOutTimeMsgTask;
 import com.doubleysoft.delayquene4j.tasks.RedisDelayMsgService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RedissonClient;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,9 +56,11 @@ public class DelayMsgConfig implements DelayMsgService {
         }
     };
 
+/*
+    * Example:
     public DelayMsgConfig(RedissonClient redissonClient) {
         this(new RedissonRedisProvider(redissonClient), new RedissonRedisLockProvider(redissonClient), new JacksonProvider());
-    }
+    }*/
 
     public DelayMsgConfig(RedisProvider redisProvider, LockProvider lockProvider, JsonProvider jsonProvider) {
         this.redisProvider = redisProvider;

@@ -43,7 +43,7 @@ public class PullInTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack 
                     doSystemCallBack(systemKey);
                 });
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.warn("[Delay Queue]Fail in fetch delayed message to handle", e);
         }
     }

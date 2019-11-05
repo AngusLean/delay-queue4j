@@ -44,7 +44,7 @@ public class PullOutTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack
             executorService.submit(() -> {
                 try {
                     doPullTimeOutMsg(row);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     log.warn("[Delay Queue] Fail in pull message from queue :{}", row, e);
                 }
             });
