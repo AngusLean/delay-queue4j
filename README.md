@@ -13,7 +13,7 @@ need to download project and directly use it by source code。
 
 Test Demo:
 
-```$xslt
+```java $xslt
 public class DelayMsgConfigTest1 {
     //最大的延时误差
     private static final int MAX_MARGIN = 3;
