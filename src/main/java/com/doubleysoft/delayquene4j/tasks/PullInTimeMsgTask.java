@@ -62,7 +62,7 @@ public class PullInTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack 
                 }
             }
         }
-        log.info("[Delay Queue] Pull InTime message thread shutdown");
+        log.info("[Delay Queue] Pull intime message thread shutdown");
         if (!bgExecutorService.isShutdown()) {
             bgExecutorService.shutdown();
         }

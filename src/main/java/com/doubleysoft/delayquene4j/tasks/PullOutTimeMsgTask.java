@@ -85,7 +85,7 @@ public class PullOutTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack
             if (!isStop) {
                 doPullAllTopics();
             } else {
-                log.info("[Delay Queue] Pull OutTime message shutdown");
+                log.info("[Delay Queue] Pull outtime message thread shutdown");
                 try {
                     this.timedPullService.shutdown();
                 } catch (Exception ignore) {

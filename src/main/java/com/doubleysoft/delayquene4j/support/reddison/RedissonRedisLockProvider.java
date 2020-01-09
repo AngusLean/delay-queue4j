@@ -3,6 +3,7 @@ package com.doubleysoft.delayquene4j.support.reddison;
 import com.doubleysoft.delayquene4j.support.LockProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.RedissonShutdownException;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 
@@ -30,13 +31,16 @@ public class RedissonRedisLockProvider implements LockProvider {
 
     @Override
     public void release(String key) {
-        RLock lock = redissonClient.getLock(key);
-        if (lock == null || !lock.isLocked()) {
-            return;
+        try {
+            RLock lock = redissonClient.getLock(key);
+            if (lock == null || !lock.isLocked()) {
+                return;
+            }
+            if (!lock.isHeldByCurrentThread()) {
+                return;
+            }
+            lock.forceUnlock();
+        } catch (RedissonShutdownException ignore) {
         }
-        if (!lock.isHeldByCurrentThread()) {
-            return;
-        }
-        lock.forceUnlock();
     }
 }

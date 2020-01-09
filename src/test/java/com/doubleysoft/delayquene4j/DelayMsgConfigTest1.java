@@ -53,7 +53,7 @@ public class DelayMsgConfigTest1 {
         delayMsgConfig.setMaximumPoolSize(20);
         delayMsgConfig.begin();
         TimeUnit.SECONDS.sleep(2);
-        String system = "DELAY-ATEST1";
+        String system = "DELAY-ATEST3";
         CountDownLatch latch = new CountDownLatch(1);
         //1. step1- register delay message callback
         delayMsgConfig.addDelayCallBack(system, (uuid, message) -> {
