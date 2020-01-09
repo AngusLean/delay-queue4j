@@ -47,20 +47,13 @@ public class DelayMsgConfig implements DelayMsgService {
     private RejectedExecutionHandler rejectedExecutionHandler = (r, executor) -> {
         try {
             TimeUnit.SECONDS.sleep(1);
-            try {
-                executor.submit(r);
-            } catch (RejectedExecutionException e) {
-                log.error("[Delay Queue] Fail in add task to thread pool because poll is full");
-            }
+            executor.submit(r);
         } catch (InterruptedException ignore) {
+        } catch (RejectedExecutionException e) {
+            log.error("[Delay Queue] Fail in add task to thread pool because poll is full");
         }
     };
 
-/*
-    * Example:
-    public DelayMsgConfig(RedissonClient redissonClient) {
-        this(new RedissonRedisProvider(redissonClient), new RedissonRedisLockProvider(redissonClient), new JacksonProvider());
-    }*/
 
     public DelayMsgConfig(RedisProvider redisProvider, LockProvider lockProvider, JsonProvider jsonProvider) {
         this.redisProvider = redisProvider;
@@ -107,7 +100,8 @@ public class DelayMsgConfig implements DelayMsgService {
                 return new Thread(r, "Delayed-ThreadPool-" + integer.getAndIncrement());
             }
         };
-        executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(100), FACTORY);
+        executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(100), FACTORY);
         ((ThreadPoolExecutor) executorService).setRejectedExecutionHandler(rejectedExecutionHandler);
     }
 

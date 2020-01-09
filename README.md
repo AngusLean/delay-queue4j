@@ -11,6 +11,48 @@ view [设计思路](http://anguslean.cn/2019/10/26/DistributeSystem/%E4%B8%80%E7
 currently this project does't upload to maven repository,so you
 need to download project and directly use it by source code。
 
+to use `delay-queue4j`, the next 3 steps is needed:
+
+- First, you must set `RedisProvider`,`LockProvider`, and `JsonProvider`。
+currently this library only provide jackson and redisson implementation, if you
+project use then also, you can use those implementation directly:
+```java
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress(host)
+                .setPassword(psd)
+                .setDatabase(1);
+        // Sync and Async API
+        redisson = Redisson.create(config);
+        RedisProvider redisProvider = new RedissonRedisProvider(redisson);
+        LockProvider lockProvider = new RedissonRedisLockProvider(redisson);
+        JsonProvider jsonProvider = new JacksonProvider();
+        delayMsgConfig = new DelayMsgConfig(redisProvider, lockProvider, jsonProvider);
+```
+but you must carefully notice `redisson` and `jackson` version conflict problem.
+-  Second, register you delay message handler callback
+``` java 
+//system is the key which callback handler focus in 
+delayMsgConfig.addDelayCallBack(system, (uuid, message) -> {
+            System.out.println("收到消息" + uuid + ", " + message);
+            latch.countDown();
+        });
+```
+-  Third, publish you delay message
+```java
+delayMsgConfig.addDelayMessage(DelayedInfoDTO.builder()
+                .delayTime(Math.abs(new Random().nextLong()) % 20)
+                 // callback handler key
+                .system(system)
+                .message(system + String.format("%2d", new Random().nextInt(100)))
+                .uuid(UUID.randomUUID().toString())
+                .build());
+```
+
+
+
+---
+
 Test Demo:
 
 ```java $xslt

@@ -76,18 +76,14 @@ public class RedissonRedisProvider implements RedisProvider {
     @Override
     public String blockPopFromList(String listName) {
         RBlockingQueue<Object> blockingQueue;
-        try {
-            blockingQueue = redissonClient.getBlockingQueue(listName);
-        } catch (RedissonShutdownException ignore) {
-            return null;
-        }
         Object poll = null;
         try {
+            blockingQueue = redissonClient.getBlockingQueue(listName);
             poll = blockingQueue.poll(500, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("[Delay Queue] Fail in pop from block queue:{}", listName, e);
         } catch (RedissonShutdownException ignore) {
             return null;
+        } catch (InterruptedException e) {
+            log.error("[Delay Queue] Fail in pop from block queue:{}", listName, e);
         }
         if (poll == null) {
             return null;

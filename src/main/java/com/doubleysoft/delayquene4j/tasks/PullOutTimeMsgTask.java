@@ -16,12 +16,10 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class PullOutTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack {
     private volatile boolean isStop = false;
-
     private final ExecutorService executorService;
     private final LockProvider lockProvider;
     private final RedisProvider redisProvider;
     private final DelayMsgConfig delayMsgConfig;
-
     private ScheduledExecutorService timedPullService;
 
     public PullOutTimeMsgTask(LockProvider lockProvider,
@@ -78,7 +76,6 @@ public class PullOutTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack
         }
     }
 
-
     @Override
     public void run() {
         try {
@@ -86,12 +83,8 @@ public class PullOutTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack
                 doPullAllTopics();
             } else {
                 log.info("[Delay Queue] Pull outtime message thread shutdown");
-                try {
-                    this.timedPullService.shutdown();
-                } catch (Exception ignore) {
-                }
+                this.timedPullService.shutdown();
             }
-
         } catch (Exception ignore) {
         }
     }

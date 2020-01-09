@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * @author dongyang.yu
  * @email dongyang.yu@anxincloud.com
  */
-public class DelayMsgConfigTest1 {
+public class RedissonClientTest {
     //最大的延时误差
     private static final int MAX_MARGIN = 3;
 
