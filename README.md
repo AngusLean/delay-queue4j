@@ -3,6 +3,9 @@ distributed redis-based delay queue written in java. this library is design for
 distributed system delay-queue, which does't require **strict exactly delay time**,
 but maybe have large data count 。
 
+# design 
+view [设计思路](http://anguslean.cn/2019/10/26/DistributeSystem/%E4%B8%80%E7%A7%8D%E5%9F%BA%E4%BA%8ERedis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/)
+
 # Usage
 
 currently this project does't upload to maven repository,so you
