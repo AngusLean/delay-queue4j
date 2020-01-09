@@ -37,29 +37,20 @@ public class DelayMsgConfigTest1 {
         delayMsgConfig.setMaximumPoolSize(20);
         delayMsgConfig.begin();
         TimeUnit.SECONDS.sleep(2);
-        Long crt = System.currentTimeMillis() / 1000;
-        System.out.println("开始发送消息:" + crt);
-        Map<String, Long> target = new HashMap<>();
-        Map<String, Long> actualResult = new HashMap<>();
-        int testLen = 100;
-        CountDownLatch latch = new CountDownLatch(testLen);
-        for (int i = 0; i < testLen; i++) {
-            String system = "TEST-SYSTEM" + i;
-            DelayedInfoDTO data = DelayedInfoDTO.builder().delayTime(Math.abs(new Random().nextLong()) % 20)
-                    .system(system)
-                    .message(system + String.format("%2d", new Random().nextInt(100)))
-                    .uuid(UUID.randomUUID().toString()).build();
-            target.put(data.getUuid(), crt + data.getDelayTime());
-            delayMsgConfig.addDelayMessage(data, (uuid, message) -> {
-                actualResult.put(uuid, System.currentTimeMillis() / 1000 - target.get(uuid));
-                latch.countDown();
-            });
-        }
-        latch.await(200, TimeUnit.SECONDS);
-        System.out.println(actualResult);
-        List<Long> errorCount = actualResult.values().stream().filter(row -> Math.abs(row) >= MAX_MARGIN).collect(Collectors.toList());
-        System.out.println("延迟过大的消息数量：" + errorCount);
-        Assert.assertEquals(0, errorCount.size());
+        String system = "DELAY-ATEST1";
+        CountDownLatch latch = new CountDownLatch(1);
+        //1. step1- register delay message callback
+        delayMsgConfig.addDelayCallBack(system, (uuid, message) -> {
+            System.out.println("收到消息" + uuid + ", " + message);
+            latch.countDown();
+        });
+        //2. step2- add a delay message, which delayed key must match callback function key
+        delayMsgConfig.addDelayMessage(DelayedInfoDTO.builder()
+                .delayTime(Math.abs(new Random().nextLong()) % 20)
+                .system(system)
+                .message(system + String.format("%2d", new Random().nextInt(100)))
+                .uuid(UUID.randomUUID().toString())
+                .build());
     }
 
 }
