@@ -1,8 +1,12 @@
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+// private config file
+apply from: 'publish.gradle'
 
-group 'com.doubleysoft'
-version '1.0.0-SNAPSHOT'
+group 'cn.anguslean'
+version '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -11,10 +15,6 @@ repositories {
     maven { url snapshotRepository }
     maven { url repository }
     mavenCentral()
-}
-
-configurations {
-    deployerJars
 }
 
 dependencies {
@@ -28,19 +28,68 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.slf4j:slf4j-simple:1.7.25'
 
-    deployerJars "org.apache.maven.wagon:wagon-http:2.2"
-
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: "http://192.168.20.103:8081/nexus/content/repositories/snapshots/") {
-                authentication(userName: properties.getProperty("userName"), password: properties.getProperty("passWord"))
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'delay-queue4j'
+                description = 'Simple Distributed Delay Queue For Redis In Java'
+                url = 'https://github.com/AngusLean/delay-queue4j'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'cupoghost'
+                        email = 'cupoghost@gmail.com'
+                    }
+                }
+                //version control
+                scm {
+                    url = 'https://github.com/AngusLean/delay-queue4j'
+                    connection = 'scm:git:git@github.com:AngusLean/delay-queue4j.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:AngusLean/delay-queue4j.git'
+                }
             }
         }
     }
+    // publish target
+    repositories {
+        maven {
+            url = version.endsWith('SNAPSHOT') ? snapshotCenterRepository : releaseCenterRepository
+            credentials {
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
+javadoc {
+    options.addStringOption("charset", "UTF-8")
 }
