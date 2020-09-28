@@ -54,12 +54,9 @@ public class PullInTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack 
                 doFetchMsg(getWaitHandleSetName(systemKey));
                 errorCount--;
             } catch (Exception e) {
-                log.warn("[Delay Queue]Fail in parse string:{} to DelayedInfoDTO class");
+                log.warn("[Delay Queue]Fail in handle key:{} to DelayedInfoDTO class", systemKey);
                 errorCount++;
-                try {
-                    TimeUnit.SECONDS.sleep(1 * (errorCount / 2));
-                } catch (InterruptedException ignore) {
-                }
+                simpleSleep();
             }
         }
         log.info("[Delay Queue] Pull intime message thread shutdown");
@@ -95,4 +92,12 @@ public class PullInTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack 
     public void stop() {
         isStop = true;
     }
+
+    private void simpleSleep() {
+        try {
+            TimeUnit.SECONDS.sleep((errorCount / 2));
+        } catch (InterruptedException ignore) {
+        }
+    }
+
 }

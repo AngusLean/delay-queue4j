@@ -20,90 +20,61 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 public class DelayMsgConfig implements DelayMsgService {
-    /**
-     * min pull data period, this param will determine precision,
-     * for example, current time is 1000, minPeriod is 5. when a message is arrived now,
-     * and it's delay is configured 10006, this item will be handle in time 10005.
-     */
-    @Getter
-    @Setter
-    private Long minPeriod = 1l;
-
-    @Setter
-    private int corePoolSize = 5;
-
-    @Setter
-    private int maximumPoolSize = 10;
-
-    @Setter
-    private long keepAliveTime = 60;
-
+    private DelayedProperties delayedProperties;
     private LockProvider lockProvider;
     private RedisProvider redisProvider;
     private JsonProvider jsonProvider;
     private DelayMsgService delayMsgService;
-    private ExecutorService executorService;
+    private int status;
 
-    private RejectedExecutionHandler rejectedExecutionHandler = (r, executor) -> {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-            executor.submit(r);
-        } catch (InterruptedException ignore) {
-        } catch (RejectedExecutionException e) {
-            log.error("[Delay Queue] Fail in add task to thread pool because poll is full");
-        }
-    };
-
-
-    public DelayMsgConfig(RedisProvider redisProvider, LockProvider lockProvider, JsonProvider jsonProvider) {
+    public DelayMsgConfig(RedisProvider redisProvider, LockProvider lockProvider,
+                          JsonProvider jsonProvider, DelayedProperties delayedProperties) {
         this.redisProvider = redisProvider;
         this.lockProvider = lockProvider;
         this.jsonProvider = jsonProvider;
+        this.delayedProperties = delayedProperties;
         this.delayMsgService = new RedisDelayMsgService(redisProvider, jsonProvider);
+        this.beginTimerTasks();
     }
 
-    public void begin() {
-        initThreadPool();
+/*    public void begin() {
         beginTimerTasks();
-    }
+    }*/
 
     @Override
     public void addDelayMessage(DelayedInfoDTO delayedInfoDTO, DelayedMsgHandler msgHandler) {
+        check();
         this.delayMsgService.addDelayMessage(delayedInfoDTO, msgHandler);
     }
 
     @Override
     public void addDelayMessage(DelayedInfoDTO delayedInfoDTO) {
+        check();
         this.delayMsgService.addDelayMessage(delayedInfoDTO);
     }
 
     @Override
     public void addDelayCallBack(String system, DelayedMsgHandler msgHandler) {
+        check();
         this.delayMsgService.addDelayCallBack(system, msgHandler);
     }
 
     private void beginTimerTasks() {
-        PullOutTimeMsgTask pullOutTimeMsgTask = new PullOutTimeMsgTask(lockProvider, redisProvider, executorService, this);
-        PullInTimeMsgTask pullInTimeMsgTask = new PullInTimeMsgTask(redisProvider, jsonProvider, executorService);
+        ExecutorService clientExecutorService = delayedProperties.getClientExecutorService();
+        PullOutTimeMsgTask pullOutTimeMsgTask = new PullOutTimeMsgTask(lockProvider, redisProvider
+                ,clientExecutorService, delayedProperties);
+        PullInTimeMsgTask pullInTimeMsgTask = new PullInTimeMsgTask(redisProvider, jsonProvider
+                ,clientExecutorService);
+        status = 1;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             pullInTimeMsgTask.stop();
             pullOutTimeMsgTask.stop();
         }));
     }
 
-    private void initThreadPool() {
-        ThreadFactory FACTORY = new ThreadFactory() {
-            private final AtomicInteger integer = new AtomicInteger();
-
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "Delayed-ThreadPool-" + integer.getAndIncrement());
-            }
-        };
-        executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(100), FACTORY);
-        ((ThreadPoolExecutor) executorService).setRejectedExecutionHandler(rejectedExecutionHandler);
+    private void check(){
+        if (status != 1) {
+            throw new RuntimeException("延迟队列初始化之前不能添加回调方法");
+        }
     }
-
-
 }

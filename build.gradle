@@ -9,11 +9,13 @@ group 'cn.anguslean'
 version '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
 
 repositories {
-    maven { url snapshotRepository }
-    maven { url repository }
+//    maven { url snapshotRepository }
+//    maven { url repository }
     mavenCentral()
 }
 
@@ -31,13 +33,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
+//            artifact sourcesJar
+//            artifact javadocJar
             pom {
                 name = 'delay-queue4j'
                 description = 'Simple Distributed Delay Queue For Redis In Java'
@@ -66,10 +67,10 @@ publishing {
     // publish target
     repositories {
         maven {
-            url = version.endsWith('SNAPSHOT') ? snapshotCenterRepository : releaseCenterRepository
+            url = version.endsWith('SNAPSHOT') ? snapshotInnerRepository : releaseInnerRepository
             credentials {
-                username sonatypeUsername
-                password sonatypePassword
+                username innerUserName
+                password innerPassWord
             }
         }
     }
@@ -85,9 +86,9 @@ task javadocJar(type: Jar) {
     classifier = 'javadoc'
 }
 
-signing {
+/*signing {
     sign publishing.publications.mavenJava
-}
+}*/
 
 
 javadoc {

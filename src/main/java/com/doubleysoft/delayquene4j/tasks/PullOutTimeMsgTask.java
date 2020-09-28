@@ -1,6 +1,7 @@
 package com.doubleysoft.delayquene4j.tasks;
 
 import com.doubleysoft.delayquene4j.DelayMsgConfig;
+import com.doubleysoft.delayquene4j.DelayedProperties;
 import com.doubleysoft.delayquene4j.support.LockProvider;
 import com.doubleysoft.delayquene4j.support.RedisProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -19,18 +20,18 @@ public class PullOutTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack
     private final ExecutorService executorService;
     private final LockProvider lockProvider;
     private final RedisProvider redisProvider;
-    private final DelayMsgConfig delayMsgConfig;
     private ScheduledExecutorService timedPullService;
+    private long minPeriod;
 
     public PullOutTimeMsgTask(LockProvider lockProvider,
-                              RedisProvider redisProvider, ExecutorService executorService, DelayMsgConfig delayMsgConfig) {
+                              RedisProvider redisProvider, ExecutorService executorService, DelayedProperties delayedProperties) {
 
         this.executorService = executorService;
         this.lockProvider = lockProvider;
         this.redisProvider = redisProvider;
-        this.delayMsgConfig = delayMsgConfig;
+        this.minPeriod = delayedProperties.getMinPeriod();
         timedPullService = Executors.newSingleThreadScheduledExecutor();
-        timedPullService.scheduleAtFixedRate(this, delayMsgConfig.getMinPeriod(), delayMsgConfig.getMinPeriod(), TimeUnit.SECONDS);
+        timedPullService.scheduleAtFixedRate(this, minPeriod, minPeriod, TimeUnit.SECONDS);
     }
 
     public void doPullAllTopics() {
@@ -52,7 +53,7 @@ public class PullOutTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack
     private void doPullTimeOutMsg(String queueName) {
         long crt = System.currentTimeMillis() / 1000;
         //query begin score should ensure no time-slice between last pull action and this pull action.
-        Long range = crt + delayMsgConfig.getMinPeriod();
+        Long range = crt + minPeriod;
         crt = 0;
         //delayed message need to be processed now, but we add it to redis queue for performance
         //in distributed system
