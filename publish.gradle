@@ -1,6 +1,0 @@
-ext.'signing.keyId' = '56799F56'
-ext.'signing.password' = '19930520am'
-ext.'signing.secretKeyRingFile' = '/home/it033/sourcesoft/secret.gpg'
-
-ext.'sonatypeUsername'='dongyang.yu'
-ext.'sonatypePassword'='19930520Am@@'
