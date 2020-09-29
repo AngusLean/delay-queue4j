@@ -1,1 +1,3 @@
 rootProject.name = 'delay-quene4j'
+
+include 'delay-queue4j-core'

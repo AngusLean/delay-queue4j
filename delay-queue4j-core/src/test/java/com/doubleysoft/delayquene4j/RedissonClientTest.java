@@ -7,6 +7,14 @@ import com.doubleysoft.delayquene4j.support.RedisProvider;
 import com.doubleysoft.delayquene4j.support.jackson.JacksonProvider;
 import com.doubleysoft.delayquene4j.support.reddison.RedissonRedisLockProvider;
 import com.doubleysoft.delayquene4j.support.reddison.RedissonRedisProvider;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,11 +22,6 @@ import org.junit.Test;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author dongyang.yu

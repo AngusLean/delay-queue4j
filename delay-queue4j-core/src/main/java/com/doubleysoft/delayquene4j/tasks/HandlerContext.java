@@ -1,11 +1,9 @@
 package com.doubleysoft.delayquene4j.tasks;
 
 import com.doubleysoft.delayquene4j.DelayedMsgHandler;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author dongyang.yu

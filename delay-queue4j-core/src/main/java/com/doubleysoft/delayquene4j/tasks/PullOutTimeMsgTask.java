@@ -1,18 +1,16 @@
 package com.doubleysoft.delayquene4j.tasks;
 
-import com.doubleysoft.delayquene4j.DelayMsgConfig;
 import com.doubleysoft.delayquene4j.DelayedProperties;
 import com.doubleysoft.delayquene4j.support.LockProvider;
 import com.doubleysoft.delayquene4j.support.NamedThreadFactory;
 import com.doubleysoft.delayquene4j.support.RedisProvider;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j

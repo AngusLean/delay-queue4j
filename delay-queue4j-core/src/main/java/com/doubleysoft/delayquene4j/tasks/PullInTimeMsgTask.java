@@ -4,11 +4,10 @@ import com.doubleysoft.delayquene4j.model.DelayedInfoDTO;
 import com.doubleysoft.delayquene4j.support.JsonProvider;
 import com.doubleysoft.delayquene4j.support.NamedThreadFactory;
 import com.doubleysoft.delayquene4j.support.RedisProvider;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author dongyang.yu

@@ -3,7 +3,6 @@ package com.doubleysoft.delayquene4j.support.jackson;
 import com.doubleysoft.delayquene4j.support.JsonProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 
 /**

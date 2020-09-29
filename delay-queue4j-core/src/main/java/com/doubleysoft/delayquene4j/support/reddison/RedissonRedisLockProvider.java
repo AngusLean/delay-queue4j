@@ -1,13 +1,12 @@
 package com.doubleysoft.delayquene4j.support.reddison;
 
 import com.doubleysoft.delayquene4j.support.LockProvider;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.RedissonShutdownException;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author dongyang.yu
