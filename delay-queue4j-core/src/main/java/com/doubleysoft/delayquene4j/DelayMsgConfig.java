@@ -7,12 +7,8 @@ import com.doubleysoft.delayquene4j.support.RedisProvider;
 import com.doubleysoft.delayquene4j.tasks.PullInTimeMsgTask;
 import com.doubleysoft.delayquene4j.tasks.PullOutTimeMsgTask;
 import com.doubleysoft.delayquene4j.tasks.RedisDelayMsgService;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.concurrent.ExecutorService;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author dongyang.yu
