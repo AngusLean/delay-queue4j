@@ -3,6 +3,7 @@ package com.doubleysoft.delayquene4j.tasks;
 import com.doubleysoft.delayquene4j.DelayMsgConfig;
 import com.doubleysoft.delayquene4j.DelayedProperties;
 import com.doubleysoft.delayquene4j.support.LockProvider;
+import com.doubleysoft.delayquene4j.support.NamedThreadFactory;
 import com.doubleysoft.delayquene4j.support.RedisProvider;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,13 +25,15 @@ public class PullOutTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack
     private long minPeriod;
 
     public PullOutTimeMsgTask(LockProvider lockProvider,
-                              RedisProvider redisProvider, ExecutorService executorService, DelayedProperties delayedProperties) {
+                              RedisProvider redisProvider, ExecutorService executorService,
+                              DelayedProperties delayedProperties) {
 
         this.executorService = executorService;
         this.lockProvider = lockProvider;
         this.redisProvider = redisProvider;
         this.minPeriod = delayedProperties.getMinPeriod();
-        timedPullService = Executors.newSingleThreadScheduledExecutor();
+        timedPullService = Executors.newSingleThreadScheduledExecutor(
+                new NamedThreadFactory("DELAY_TIME_CONSUME_", true));
         timedPullService.scheduleAtFixedRate(this, minPeriod, minPeriod, TimeUnit.SECONDS);
     }
 

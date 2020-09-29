@@ -37,10 +37,6 @@ public class DelayMsgConfig implements DelayMsgService {
         this.beginTimerTasks();
     }
 
-/*    public void begin() {
-        beginTimerTasks();
-    }*/
-
     @Override
     public void addDelayMessage(DelayedInfoDTO delayedInfoDTO, DelayedMsgHandler msgHandler) {
         check();

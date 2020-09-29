@@ -2,6 +2,7 @@ package com.doubleysoft.delayquene4j.tasks;
 
 import com.doubleysoft.delayquene4j.model.DelayedInfoDTO;
 import com.doubleysoft.delayquene4j.support.JsonProvider;
+import com.doubleysoft.delayquene4j.support.NamedThreadFactory;
 import com.doubleysoft.delayquene4j.support.RedisProvider;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +24,8 @@ public class PullInTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack 
     private int errorCount = 0;
 
     public PullInTimeMsgTask(RedisProvider redisProvider, JsonProvider jsonProvider, ExecutorService busiExecutorService) {
-        this(redisProvider, jsonProvider, busiExecutorService, Executors.newCachedThreadPool());
+        this(redisProvider, jsonProvider, busiExecutorService, Executors.newCachedThreadPool(
+                new NamedThreadFactory("DELAY_BLOCK_CONSUME_", true)));
     }
 
     public PullInTimeMsgTask(RedisProvider redisProvider, JsonProvider jsonProvider, ExecutorService busiExecutorService, ExecutorService pullOutTimeService) {
@@ -31,21 +33,16 @@ public class PullInTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack 
         this.busiExecutorService = busiExecutorService;
         this.jsonProvider = jsonProvider;
         this.bgExecutorService = pullOutTimeService;
-        new Thread(this).start();
+        run();
     }
 
-    @Override
     public void run() {
-        try {
-            HandlerContext.setHandlerKeyChangeCallBack(systemKey -> {
-                //each pull handler just pull interest keys
-                bgExecutorService.execute(() -> {
-                    doSystemCallBack(systemKey);
-                });
+        HandlerContext.setHandlerKeyChangeCallBack(systemKey -> {
+            //each pull handler just pull interest keys
+            bgExecutorService.execute(() -> {
+                doSystemCallBack(systemKey);
             });
-        } catch (Throwable e) {
-            log.warn("[Delay Queue]Fail in fetch delayed message to handle", e);
-        }
+        });
     }
 
     private void doSystemCallBack(String systemKey) {
@@ -70,8 +67,7 @@ public class PullInTimeMsgTask implements Runnable, PullMixin, ShutDownCallBack 
      */
     private void doFetchMsg(String blockingKeyName) {
         //block fetch
-        String msg;
-        msg = redisProvider.blockPopFromList(blockingKeyName);
+        String msg = redisProvider.blockPopFromList(blockingKeyName);
         if (msg == null || msg.length() == 0) {
             return;
         }
