@@ -8,17 +8,29 @@ group 'cn.anguslean'
 version '0.0.1-SNAPSHOT'
 
 
-repositories {
-//    maven { url snapshotRepository }
-//    maven { url repository }
-    mavenCentral()
-}
+
+
 
 allprojects {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
+    }
+
+/*    task sourcesJar(type: Jar) {
+        from sourceSets.main.allJava
+        classifier = 'sources'
+    }*/
+    task sourcesJar(type: Jar) {
+        archiveClassifier = "sources"
+    }
+    task javadocJar(type: Jar) {
+        from javadoc
+        classifier = 'javadoc'
+    }
+    javadoc {
+        options.addStringOption("charset", "UTF-8")
     }
 
     repositories {
@@ -40,9 +52,12 @@ allprojects {
 
         annotationProcessor 'org.projectlombok:lombok:1.18.10'*/
     }
+
+
 }
 
 
+/*
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -85,22 +100,12 @@ publishing {
         }
     }
 }
+*/
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier = 'sources'
-}
 
-task javadocJar(type: Jar) {
-    from javadoc
-    classifier = 'javadoc'
-}
 
 /*signing {
     sign publishing.publications.mavenJava
 }*/
 
 
-javadoc {
-    options.addStringOption("charset", "UTF-8")
-}

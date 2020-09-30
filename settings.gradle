@@ -1,3 +1,5 @@
 rootProject.name = 'delay-quene4j'
 
 include 'delay-queue4j-core'
+include 'delay-queue4j-spring-boot'
+
