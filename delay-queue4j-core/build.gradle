@@ -24,7 +24,7 @@ dependencies {
 publishing {
     // 定义发布什么
     publications {
-        mavenJava(MavenPublication) {
+        mavenJavaCenter(MavenPublication) {
             groupId = 'cn.anguslean'
             artifactId = 'delay-quene4j'
             from components.java
@@ -67,7 +67,7 @@ publishing {
     }
 }
 signing {
-    sign publishing.publications.mavenJava
+    sign publishing.publications.mavenJavaCenter
 }
 
 
